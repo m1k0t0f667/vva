@@ -27,6 +27,7 @@ function Page() {
   const [currentImage, setCurrentImage] = useState(logo);
   const [showDropdown, setShowDropdown] = useState(false);
   const [data, setData] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [buttonClicked, setButtonClicked] = useState(false);
   const dropdownRef = useRef(null);
   const logoRef = useRef(null);
@@ -67,10 +68,12 @@ function Page() {
     { name: 'Uruguay', image: team20Image, countryCode: 'Uruguay' },
   ];
 
+
   const handleImageChange = (teamImage, countryCode) => {
     setCurrentImage(teamImage);
     setShowDropdown(false);
     setData(null);
+    setSelectedCountry(countryCode);
   };
 
   const handleStart = () => {
@@ -90,6 +93,13 @@ function Page() {
     return parseInt(match.score1) > parseInt(match.score2) ? match.team1 : match.team2;
   };
 
+  const determineColor = (match) => {
+    const winner = get_winner_by_points(match);
+    if (selectedCountry === winner) return 'text-green-500';
+    if (selectedCountry === match.team1 || selectedCountry === match.team2) return 'text-red-500';
+    return 'text-gray-500';
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-200">
       <div className="bg-white p-8 rounded-lg shadow-lg">
@@ -101,7 +111,6 @@ function Page() {
             className={`w-48 h-48 rounded-full cursor-pointer mx-auto ${buttonClicked ? 'mt-16' : ''}`}
             onClick={() => setShowDropdown(!showDropdown)}
           />
-
           {showDropdown && (
             <div ref={dropdownRef} className="absolute mt-5 w-64 rounded-md shadow-lg bg-white overflow-y-auto" style={{ maxHeight: '300px' }}>
               <div className="py-1">
@@ -128,7 +137,7 @@ function Page() {
         </button>
         {data && (
           <div className="mt-4 text-lg">
-            Le vainqueur potentiel est {data.next_matches[0].winner_by_all_matches}
+            Le vainqueur potentiel du match {data.next_matches[0].team1} VS {data.next_matches[0].team2} est {data.next_matches[0].winner_by_all_matches}
           </div>
         )}
         {data && (
@@ -138,12 +147,12 @@ function Page() {
               <div key={index} className="bg-gray-100 p-4 mb-4 rounded-lg shadow-md">
                 <div className="flex justify-between">
                   <span>{match.team1} vs {match.team2}</span>
-                  <span className={get_winner_by_points(match) === match.team1 ? 'text-green-500' : 'text-red-500'}>
+                  <span className={determineColor(match)}>
                     {match.score1} - {match.score2}
                   </span>
                 </div>
-                <div className="mt-2">
-                  Gagnant : <span className={get_winner_by_points(match) === match.team1 ? 'text-green-500' : 'text-red-500'}>{get_winner_by_points(match)}</span>
+                <div className="mt-2 text-sm text-gray-500">
+                  Gagné par {get_winner_by_points(match)}
                 </div>
               </div>
             ))}
