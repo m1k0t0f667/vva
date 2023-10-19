@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import logo from '../logo.svg';
+import logo from '../Assets/oracle.png';
 import Navbar from '../Pages/Components/Navbar';
 
 import team1Image from '../Assets/france.png';
@@ -32,11 +32,16 @@ function Page() {
   const [data, setData] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [buttonClicked, setButtonClicked] = useState(false);
+  const [showBackButton, setShowBackButton] = useState(false);
   const dropdownRef = useRef(null);
   const logoRef = useRef(null);
 
   const handleHomeClick = () => {
-    window.location.href = 'http://localhost:3000/';
+    window.location.reload();
+  };
+
+  const handleBackClick = () => {
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -84,6 +89,7 @@ function Page() {
 
   const handleStart = () => {
     setButtonClicked(true);
+    setShowBackButton(true);
     const selectedTeam = teams.find(team => team.image === currentImage);
     if (selectedTeam) {
       fetch(`http://127.0.0.1:8000/${selectedTeam.countryCode}`)
@@ -108,7 +114,7 @@ function Page() {
 
   return (
     <div className="bg-green-100 bg-cover bg-center min-h-screen" style={{ backgroundImage: `url(${rugbyFieldImage})` }}>
-      <Navbar />
+      <Navbar onHomeClick={handleHomeClick} />
       <div className="flex justify-center items-center min-h-screen bg-gray-200">
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <div className="relative">
@@ -140,9 +146,16 @@ function Page() {
               </div>
             )}
           </div>
-          <button className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleStart}>
-            Start
-          </button>
+          <div className="flex justify-between">
+            <button className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleStart}>
+              Start
+            </button>
+            {showBackButton && (
+              <button className="mt-8 ml-4 bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleBackClick}>
+                Retour
+              </button>
+            )}
+          </div>
           {data && (
             <div className="mt-4 text-lg">
               Le vainqueur potentiel du match {data.next_matches[0].team1} VS {data.next_matches[0].team2} est {data.next_matches[0].winner_by_all_matches}
