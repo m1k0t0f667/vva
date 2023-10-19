@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import logo from '../Assets/oracle.png';
 import Navbar from '../Pages/Components/Navbar';
+import './Page.css';
 
 import team1Image from '../Assets/france.png';
 import team2Image from '../Assets/portugal.png';
@@ -99,17 +100,22 @@ function Page() {
     }
   };
 
+  const determineColor = (match) => {
+    const winner = get_winner_by_points(match);
+    if (selectedCountry === winner) return 'text-green-500 font-bold';
+    return 'text-red-500 font-bold';
+  };
+
   const get_winner_by_points = (match) => {
     if (!match.score1 || !match.score2) return "Match non joué";
     if (match.score1 === match.score2) return "Match nul";
     return parseInt(match.score1) > parseInt(match.score2) ? match.team1 : match.team2;
   };
 
-  const determineColor = (match) => {
+  const determineWinnerColor = (match) => {
     const winner = get_winner_by_points(match);
-    if (selectedCountry === winner) return 'text-green-500';
-    if (selectedCountry === match.team1 || selectedCountry === match.team2) return 'text-red-500';
-    return 'text-gray-500';
+    if (selectedCountry === winner) return 'text-green-500 font-bold';
+    return 'text-red-500 font-bold';
   };
 
   return (
@@ -146,15 +152,15 @@ function Page() {
               </div>
             )}
           </div>
-          <div className="flex flex-col items-center"> {/* Utilisation de flex et items-center pour centrer le bouton Retour */}
+          <div className="flex flex-col items-center">
             {selectedCountry !== null && !data && (
               <button className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleStart}>
                 Start
               </button>
             )}
             {showBackButton && (
-              <div className="mt-8"> {/* Conteneur pour centrer le bouton Retour */}
-                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleBackClick}>
+              <div className="mt-8">
+                <button className="bg-red-500 hover.bg-red-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleBackClick}>
                   Retour
                 </button>
               </div>
@@ -176,7 +182,7 @@ function Page() {
                       {match.score1} - {match.score2}
                     </span>
                   </div>
-                  <div className="mt-2 text-sm text-gray-500">
+                  <div className={`mt-2 text-sm ${determineWinnerColor(match)}`}>
                     Gagné par {get_winner_by_points(match)}
                   </div>
                 </div>
