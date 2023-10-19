@@ -24,11 +24,10 @@ import team17Image from '../Assets/Roumanie.png';
 import team18Image from '../Assets/Samoa.png';
 import team19Image from '../Assets/Tonga.jpg';
 import team20Image from '../Assets/Uruguay.png';
-import ImageDropdown from './Components/ImageDropdown';  
-import PreviousResults from './Components/PreviousResults';  
-import rugbyFieldImage from '../Assets/gazon.jpg'; 
+import ImageDropdown from './Components/ImageDropdown';
+import PreviousResults from './Components/PreviousResults';
+import rugbyFieldImage from '../Assets/gazon.jpg';
 import rugbyFieldFooterImage from '../Assets/gazon.jpg';
-
 
 function Page() {
   const [currentImage, setCurrentImage] = useState(logo);
@@ -39,6 +38,7 @@ function Page() {
   const [showBackButton, setShowBackButton] = useState(false);
   const dropdownRef = useRef(null);
   const logoRef = useRef(null);
+  const [teamDisqualified, setTeamDisqualified] = useState(false); // Ajout de l'état pour gérer la disqualification
 
   const handleHomeClick = () => {
     window.location.reload();
@@ -95,10 +95,17 @@ function Page() {
     setButtonClicked(true);
     setShowBackButton(true);
     const selectedTeam = teams.find(team => team.image === currentImage);
+
     if (selectedTeam) {
       fetch(`http://127.0.0.1:8000/${selectedTeam.countryCode}`)
         .then(response => response.json())
-        .then(data => setData(data))
+        .then(data => {
+          if (data && data.next_matches && data.next_matches.length > 0) {
+            setData(data);
+          } else {
+            setTeamDisqualified(true); // L'équipe est disqualifiée
+          }
+        })
         .catch(error => console.error('Erreur lors de la récupération des données:', error));
     }
   };
@@ -132,7 +139,11 @@ function Page() {
               </div>
             )}
           </div>
-          {data && (
+          {teamDisqualified ? ( // Affichage si l'équipe est disqualifiée
+            <div className="mt-4 text-lg">
+              Équipe disqualifiée
+            </div>
+          ) : data && (
             <div className="mt-4 text-lg">
               Le vainqueur potentiel du match {data.next_matches[0].team1} VS {data.next_matches[0].team2} est {data.next_matches[0].winner_by_all_matches}
             </div>
