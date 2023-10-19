@@ -1,4 +1,3 @@
-// Navbar.js
 import React from 'react';
 
 function Navbar(props) {

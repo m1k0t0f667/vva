@@ -146,14 +146,18 @@ function Page() {
               </div>
             )}
           </div>
-          <div className="flex justify-between">
-            <button className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleStart}>
-              Start
-            </button>
-            {showBackButton && (
-              <button className="mt-8 ml-4 bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleBackClick}>
-                Retour
+          <div className="flex flex-col items-center"> {/* Utilisation de flex et items-center pour centrer le bouton Retour */}
+            {selectedCountry !== null && !data && (
+              <button className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleStart}>
+                Start
               </button>
+            )}
+            {showBackButton && (
+              <div className="mt-8"> {/* Conteneur pour centrer le bouton Retour */}
+                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-full mx-auto block" onClick={handleBackClick}>
+                  Retour
+                </button>
+              </div>
             )}
           </div>
           {data && (
@@ -182,7 +186,6 @@ function Page() {
         </div>
       </div>
       <div className="bg-cover bg-center bg-no-repeat py-24" style={{ backgroundImage: `url(${rugbyFieldFooterImage})` }}>
-        {/* Contenu du footer ici */}
       </div>
     </div>
   );
