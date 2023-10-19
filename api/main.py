@@ -1,34 +1,11 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import csv
 from collections import Counter
 from starlette.responses import RedirectResponse
 import json
-<<<<<<< Updated upstream
-from fastapi.middleware.cors import CORSMiddleware
-=======
->>>>>>> Stashed changes
 
 app = FastAPI()
-
-origins = ["http://localhost:3000"]
-
-<<<<<<< Updated upstream
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-matches = []
-next_matches = []
-
-=======
-matches = []
-next_matches = []
-
->>>>>>> Stashed changes
 with open("./oddRugby.csv", "r") as file:
     csvreader = csv.DictReader(file)
     for row in csvreader:  # each row is a list
@@ -42,11 +19,6 @@ with open("./transformed_new_rugby.csv", "r") as file:
     csvreader = csv.DictReader(file)
     for row in csvreader:  # each row is a list
         next_matches.append(row)
-
-
-def most_frequent(List):
-    occurence_count = Counter(List)
-    return occurence_count.most_common(1)[0][0]
 
 
 def get_winner_by_odd(match):
@@ -82,8 +54,6 @@ def get_winner_old(o_match):
     else:
         return most_frequent(r), (r[0:-1])
 
-<<<<<<< Updated upstream
-=======
 
 def moyenne(l):
     r = 0
@@ -93,8 +63,7 @@ def moyenne(l):
         r1 += int(i[1])
     return round(r / len(l)), round(r1 / len(l))
 
->>>>>>> Stashed changes
-
+# API Endpoints
 @app.get("/{pays}")
 def get_allMatches(pays: str = None):
     result = []
@@ -113,25 +82,15 @@ def get_allMatches(pays: str = None):
                 else:
                     i["winner_by_10_l_matches"] = "Idem"
                 n_result.append(i)
-<<<<<<< Updated upstream
-    return json.dumps({"result10": result[0:10], "next_matches": n_result})
-=======
+
+
+
     return {"result10": result[0:10], "next_matches": n_result}
->>>>>>> Stashed changes
+
 
 
 @app.get("/")
 def get_prediction(country_1: str = None, country_2: str = None):
-<<<<<<< Updated upstream
-    result = {}
-    if country_1 and country_2:
-        for i in matches:
-            if country_1 in i.values() and country_2 in i.values():
-                (
-                    result["winner_by_matches_all"],
-                    result["winner_by_matches_last"],
-                ) = get_winner_by_odd(i)
-=======
     prediction_points = []
     r = []
     if country_1 and country_2:
@@ -149,7 +108,7 @@ def get_prediction(country_1: str = None, country_2: str = None):
             "result_by_victory": h[0],
             "10_last_matches": r[0:10],
         }
->>>>>>> Stashed changes
+
     elif country_1:
         redirect_url = f"/{country_1}"
         return RedirectResponse(redirect_url)
@@ -157,14 +116,11 @@ def get_prediction(country_1: str = None, country_2: str = None):
         redirect_url = f"/{country_2}"
         return RedirectResponse(redirect_url)
     else:
-<<<<<<< Updated upstream
-        return "Please select a country or two country : http://0.0.0.0:80/?country_1=&country_2="
-
+ return "Please select a country or two country : http://127.0.0.1:8080/?country_1=&country_2="
 
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="localhost", port=8080)
-=======
-        return "Please select a country or two country : http://127.0.0.1:8080/?country_1=&country_2="
->>>>>>> Stashed changes
+
+       
