@@ -3,6 +3,7 @@ import logo from '../Assets/oracle.png';
 import Navbar from '../Pages/Components/Navbar';
 import './Page.css';
 
+// Importez vos images d'équipe ici
 import team1Image from '../Assets/france.png';
 import team2Image from '../Assets/portugal.png';
 import team3Image from '../Assets/england.png';
@@ -23,9 +24,11 @@ import team17Image from '../Assets/Roumanie.png';
 import team18Image from '../Assets/Samoa.png';
 import team19Image from '../Assets/Tonga.jpg';
 import team20Image from '../Assets/Uruguay.png';
-
-import rugbyFieldImage from '../Assets/images.jpg';
+import ImageDropdown from './Components/ImageDropdown';  
+import PreviousResults from './Components/PreviousResults';  
+import rugbyFieldImage from '../Assets/gazon.jpg'; 
 import rugbyFieldFooterImage from '../Assets/gazon.jpg';
+
 
 function Page() {
   const [currentImage, setCurrentImage] = useState(logo);
@@ -100,24 +103,6 @@ function Page() {
     }
   };
 
-  const determineColor = (match) => {
-    const winner = get_winner_by_points(match);
-    if (selectedCountry === winner) return 'text-green-500 font-bold';
-    return 'text-red-500 font-bold';
-  };
-
-  const get_winner_by_points = (match) => {
-    if (!match.score1 || !match.score2) return "Match non joué";
-    if (match.score1 === match.score2) return "Match nul";
-    return parseInt(match.score1) > parseInt(match.score2) ? match.team1 : match.team2;
-  };
-
-  const determineWinnerColor = (match) => {
-    const winner = get_winner_by_points(match);
-    if (selectedCountry === winner) return 'text-green-500 font-bold';
-    return 'text-red-500 font-bold';
-  };
-
   return (
     <div className="bg-green-100 bg-cover bg-center min-h-screen" style={{ backgroundImage: `url(${rugbyFieldImage})` }}>
       <Navbar onHomeClick={handleHomeClick} />
@@ -131,26 +116,7 @@ function Page() {
               className={`w-48 h-48 rounded-full cursor-pointer mx-auto ${buttonClicked ? 'mt-8' : ''}`}
               onClick={() => setShowDropdown(!showDropdown)}
             />
-            {showDropdown && (
-              <div ref={dropdownRef} className="absolute mt-5 w-64 rounded-md shadow-lg bg-white overflow-y-auto" style={{ maxHeight: '300px' }}>
-                <div className="py-1">
-                  {teams.map(team => (
-                    <a
-                      key={team.name}
-                      href="#"
-                      className="flex items-center block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleImageChange(team.image, team.countryCode);
-                      }}
-                    >
-                      <img src={team.image} alt={team.name} className="w-10 h-10 rounded-full mr-3" />
-                      {team.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
+            {showDropdown && <ImageDropdown teams={teams} onImageChange={handleImageChange} />}
           </div>
           <div className="flex flex-col items-center">
             {selectedCountry !== null && !data && (
@@ -171,24 +137,8 @@ function Page() {
               Le vainqueur potentiel du match {data.next_matches[0].team1} VS {data.next_matches[0].team2} est {data.next_matches[0].winner_by_all_matches}
             </div>
           )}
-          {data && (
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              <h2 className="text-2xl font-bold mb-4 col-span-2">Anciens Résultats</h2>
-              {data.result10.map((match, index) => (
-                <div key={index} className="bg-gray-100 p-4 mb-4 rounded-lg shadow-md">
-                  <div className="flex justify-between">
-                    <span>{match.team1} vs {match.team2}</span>
-                    <span className={determineColor(match)}>
-                      {match.score1} - {match.score2}
-                    </span>
-                  </div>
-                  <div className={`mt-2 text-sm ${determineWinnerColor(match)}`}>
-                    Gagné par {get_winner_by_points(match)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+
+          {data && <PreviousResults data={data} selectedCountry={selectedCountry} />}
         </div>
       </div>
       <div className="bg-cover bg-center bg-no-repeat py-24" style={{ backgroundImage: `url(${rugbyFieldFooterImage})` }}>
