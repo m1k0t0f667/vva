@@ -6,6 +6,8 @@ from starlette.responses import RedirectResponse
 import json
 
 app = FastAPI()
+matches = []
+next_matches = []
 with open("./oddRugby.csv", "r") as file:
     csvreader = csv.DictReader(file)
     for row in csvreader:  # each row is a list
@@ -19,6 +21,11 @@ with open("./transformed_new_rugby.csv", "r") as file:
     csvreader = csv.DictReader(file)
     for row in csvreader:  # each row is a list
         next_matches.append(row)
+
+
+def most_frequent(List):
+    occurence_count = Counter(List)
+    return occurence_count.most_common(1)[0][0]
 
 
 def get_winner_by_odd(match):
@@ -63,6 +70,7 @@ def moyenne(l):
         r1 += int(i[1])
     return round(r / len(l)), round(r1 / len(l))
 
+
 # API Endpoints
 @app.get("/{pays}")
 def get_allMatches(pays: str = None):
@@ -83,10 +91,7 @@ def get_allMatches(pays: str = None):
                     i["winner_by_10_l_matches"] = "Idem"
                 n_result.append(i)
 
-
-
     return {"result10": result[0:10], "next_matches": n_result}
-
 
 
 @app.get("/")
@@ -116,11 +121,10 @@ def get_prediction(country_1: str = None, country_2: str = None):
         redirect_url = f"/{country_2}"
         return RedirectResponse(redirect_url)
     else:
- return "Please select a country or two country : http://127.0.0.1:8080/?country_1=&country_2="
+        return "Please select a country or two country : http://127.0.0.1:8080/?country_1=&country_2="
+
 
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="localhost", port=8080)
-
-       
