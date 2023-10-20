@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../Assets/oracle.png";
-import Navbar from "../Pages/Components/Navbar";
+
 import "./Page.css";
 
 // Importez vos images d'équipe ici
@@ -25,31 +25,42 @@ import team18Image from "../Assets/Samoa.png";
 import team19Image from "../Assets/Tonga.jpg";
 import team20Image from "../Assets/Uruguay.png";
 import ImageDropdown from "./Components/ImageDropdown";
-import PreviousResults from "./Components/PreviousResults";
 import rugbyFieldImage from "../Assets/gazon.jpg";
-import rugbyFieldFooterImage from "../Assets/gazon.jpg";
 
 function Page() {
   const [currentImage, setCurrentImage] = useState(logo);
+  const [currentImage2, setCurrentImage2] = useState(logo);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown2, setShowDropdown2] = useState(false);
   const [data, setData] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [buttonClicked, setButtonClicked] = useState(false);
-  const [showBackButton, setShowBackButton] = useState(false);
+  const [selectedCountry2, setSelectedCountry2] = useState(null);
   const dropdownRef = useRef(null);
+  const dropdownRef2 = useRef(null);
   const logoRef = useRef(null);
-  const [teamDisqualified, setTeamDisqualified] = useState(false);
-
-  const handleHomeClick = () => {
-    window.location.reload();
-  };
-
-  const handleBackClick = () => {
-    window.location.reload();
-  };
+  const logoRef2 = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
+      if (
+        dropdownRef2.current &&
+        event &&
+        !dropdownRef2.current.contains(event.target) &&
+        !logoRef2.current.contains(event.target)
+      ) {
+        setShowDropdown2(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDropdown2]);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      console.log(event);
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target) &&
@@ -60,10 +71,11 @@ function Page() {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [showDropdown]);
 
   const handleImageChange = (teamImage, countryCode) => {
     setCurrentImage(teamImage);
@@ -71,34 +83,44 @@ function Page() {
     setData(null);
     setSelectedCountry(countryCode);
   };
-
-  const handleStart = () => {
-    setButtonClicked(true);
-    setShowBackButton(true);
-    const selectedTeam = teams.find((team) => team.image === currentImage);
-
-    if (selectedTeam) {
-      fetch(`http://localhost:8000/${selectedTeam.countryCode}`) // Remplacez l'URL par celle de votre API FastAPI
-        .then((response) => response.json())
-        .then((data) => {
-          setData(data);
-
-          if (!data || !data.next_matches || data.next_matches.length === 0) {
-            setTeamDisqualified(true);
-          } else {
-            setTeamDisqualified(false);
-          }
-        })
-        .catch((error) =>
-          console.error("Erreur lors de la récupération des données:", error)
-        );
-    }
+  const handleImageChange2 = (teamImage, countryCode) => {
+    setCurrentImage2(teamImage);
+    setShowDropdown2(false);
+    setData(null);
+    setSelectedCountry2(countryCode);
   };
+
+  // const handleStart = () => {
+  //   setShowBackButton(true);
+  //   const selectedTeam = teams.find((team) => team.image === currentImage);
+
+  //   if (selectedTeam) {
+  //     fetch(`http://localhost:8000/${selectedTeam.countryCode}`) // Remplacez l'URL par celle de votre API FastAPI
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         setData(data);
+
+  //         if (!data || !data.next_matches || data.next_matches.length === 0) {
+  //           setTeamDisqualified(true);
+  //         } else {
+  //           setTeamDisqualified(false);
+  //         }
+  //       })
+  //       .catch((error) =>
+  //         console.error("Erreur lors de la récupération des données:", error)
+  //       );
+  //   }
+  // };
 
   // Gestionnaire pour fermer le menu déroulant lors du clic en dehors
   const handleClickOutsideDropdown = (e) => {
     if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
       setShowDropdown(false);
+    }
+  };
+  const handleClickOutsideDropdown2 = (e) => {
+    if (dropdownRef2.current && !dropdownRef2.current.contains(e.target)) {
+      setShowDropdown2(false);
     }
   };
 
@@ -132,13 +154,15 @@ function Page() {
 
   return (
     <div
-      className="bg-green-100 bg-cover bg-center min-h-screen"
+      className="bg-green-100 bg-cover bg-center min-h-screen "
       style={{ backgroundImage: `url(${rugbyFieldImage})` }}
     >
-      Hello
       <div
-        className="flex justify-center items-center min-h-screen bg-gray-200"
-        onClick={handleClickOutsideDropdown}
+        className="flex  min-h-screen bg-gray-200 flex-row justify-center items-center"
+        onClick={(e) => {
+          handleClickOutsideDropdown();
+          handleClickOutsideDropdown2();
+        }}
       >
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <div className="mb-4">
@@ -158,46 +182,36 @@ function Page() {
             />
           )}
           <div className="flex flex-col items-center">
-            {selectedCountry !== null && !data && (
+            {/* {selectedCountry !== null && !data && (
               <button
                 className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block"
                 onClick={handleStart}
               >
                 Start
               </button>
-            )}
-            {showBackButton && (
-              <div className="mt-8">
-                <button
-                  className="bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-full mx-auto block"
-                  onClick={handleBackClick}
-                >
-                  Retour
-                </button>
-              </div>
-            )}
+            )} */}
           </div>
-          {teamDisqualified ? (
-            <div className="mt-4 text-lg">Équipe disqualifiée</div>
-          ) : (
-            data && (
-              <div className="mt-4 text-lg">
-                Le vainqueur potentiel du match {data.next_matches[0].team1} VS{" "}
-                {data.next_matches[0].team2} est{" "}
-                {data.next_matches[0].winner_by_all_matches}
-              </div>
-            )
+        </div>
+        <div className="bg-white p-8 rounded-lg shadow-lg">
+          <div className="mb-4">
+            <img
+              ref={logoRef2}
+              src={currentImage2}
+              alt="Current Team"
+              className={`w-48 h-48 rounded-full cursor-pointer mx-auto`}
+              onClick={() => setShowDropdown2(!showDropdown2)}
+            />
+          </div>
+          {showDropdown2 && (
+            <ImageDropdown
+              teams={teams}
+              onImageChange={handleImageChange2}
+              dropdownRef={dropdownRef2}
+            />
           )}
-
-          {data && (
-            <PreviousResults data={data} selectedCountry={selectedCountry} />
-          )}
+          <div className="flex flex-col items-center"></div>
         </div>
       </div>
-      <div
-        className="bg-cover bg-center bg-no-repeat py-24"
-        style={{ backgroundImage: `url(${rugbyFieldFooterImage})` }}
-      ></div>
     </div>
   );
 }
