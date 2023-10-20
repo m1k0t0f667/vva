@@ -4,9 +4,9 @@ import Navbar from "../Pages/Components/Navbar";
 import "./Page.css";
 
 // Importez vos images d'équipe ici
-import team1Image from "../Assets/france.png";
-import team2Image from "../Assets/portugal.png";
-import team3Image from "../Assets/england.png";
+import team1Image from "../Assets/france.jpg";
+import team2Image from "../Assets/portugal.jpg";
+import team3Image from "../Assets/england.jpg";
 import team4Image from "../Assets/Argentine.png";
 import team5Image from "../Assets/afrique du sud.png";
 import team6Image from "../Assets/Australie.png";
