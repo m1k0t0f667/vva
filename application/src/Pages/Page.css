@@ -1,12 +1,44 @@
-/* Page.css */
+/* Ajoutez ces styles CSS personnalisés */
 
-/* Styles pour le composant Page */
+/* Style de la page principale */
 .page-container {
-    background-color: #fff;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Ajoutez d'autres styles au besoin */
-  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden; /* Empêche le défilement de la page */
+}
+
+/* Style de la barre de navigation (si vous en avez une) */
+.navbar {
+  /* Ajoutez vos styles de barre de navigation ici */
+}
+
+/* Style de l'image de fond du haut de la page */
+.bg-green-100 {
+  background-color: #e6fffa; /* Couleur de fond */
+}
+
+/* Style de l'image de fond du contenu principal */
+.bg-cover {
+  background-size: cover;
+}
+
+.bg-center {
+  background-position: center;
+}
+
+/* Style de l'image de fond du pied de page */
+.footer-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 300px; /* Hauteur de votre pied de page */
+}
+
+/* Style de la zone de pied de page */
+.footer {
+  background-color: #ffffff; /* Couleur de fond du pied de page */
+  padding: 1rem;
+}
+
+/* Ajoutez d'autres styles personnalisés au besoin */

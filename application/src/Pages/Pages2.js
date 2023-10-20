@@ -19,7 +19,7 @@ import team12Image from "../Assets/italie.png";
 import team13Image from "../Assets/Japon.png";
 import team14Image from "../Assets/Namibie.png";
 import team15Image from "../Assets/Nouvelle-Zélande.png";
-import team16Image from "../Assets/Pays de Galles.png";
+import team16Image from "../Assets/Pays de Galles.png"; 
 import team17Image from "../Assets/Roumanie.png";
 import team18Image from "../Assets/Samoa.png";
 import team19Image from "../Assets/Tonga.jpg";
