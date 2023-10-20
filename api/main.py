@@ -21,7 +21,7 @@ def load_data(file_name: str) -> list:
     with open(file_name, 'r') as file:
         csvreader = csv.DictReader(file)
         for row in csvreader:
-            data.append(row)
+            data.append(row)    
     return data
 
 matches = load_data("./oddRugby.csv") + load_data("./transformed_rugby.csv")

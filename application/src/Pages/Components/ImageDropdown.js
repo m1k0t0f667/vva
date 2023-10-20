@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
-function ImageDropdown({ teams, onImageChange }) {
+function ImageDropdown({ teams, onImageChange, dropdownRef }) {
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      onImageChange(null, null); // Ferme le menu déroulant en passant des valeurs null
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="absolute mt-5 w-64 rounded-md shadow-lg bg-white overflow-y-auto" style={{ maxHeight: '300px' }}>
+    <div className="absolute left-1/2 transform -translate-x-1/2 mt-4 w-64 rounded-md shadow-lg bg-white overflow-y-auto" style={{ maxHeight: '300px' }} ref={dropdownRef}>
       <div className="py-1">
-        {teams.map(team => (
+        {teams.map((team) => (
           <a
             key={team.name}
             href="#"

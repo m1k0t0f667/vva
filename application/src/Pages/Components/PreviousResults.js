@@ -18,6 +18,9 @@ function PreviousResults({ data, selectedCountry }) {
       <h2 className="text-2xl font-bold mb-4 col-span-2">Anciens Résultats</h2>
       {data.result10.map((match, index) => (
         <div key={index} className="bg-gray-100 p-4 mb-4 rounded-lg shadow-md">
+          <div className="flex justify-between mb-2">
+            <span className="font-bold text-black">{match.date}</span> {/* Date styled as bold and black */}
+          </div>
           <div className="flex justify-between">
             <span>{match.team1} vs {match.team2}</span>
             <span className={determineWinnerColor(match)}>
