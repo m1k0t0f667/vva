@@ -35,5 +35,5 @@ function ImageDropdown({ teams, onImageChange, dropdownRef }) {
     </div>
   );
 }
-
+  
 export default ImageDropdown;

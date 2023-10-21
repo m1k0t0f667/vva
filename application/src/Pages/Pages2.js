@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../Assets/oracle.png";
-
-import "./Page.css";
+import "./Page.css"; // Assurez-vous que ce fichier CSS est accessible ici
+import rugbyFieldImage from "../Assets/gazon.jpg";
+import ImageDropdownLeft from "./Components/ImageDropdownLeft";
+import ImageDropdownRight from "./Components/ImageDropdownRight";
 
 // Importez vos images d'équipe ici
 import team1Image from "../Assets/france.jpg";
@@ -25,14 +27,13 @@ import team18Image from "../Assets/Samoa.png";
 import team19Image from "../Assets/Tonga.jpg";
 import team20Image from "../Assets/Uruguay.png";
 import ImageDropdown from "./Components/ImageDropdown";
-import rugbyFieldImage from "../Assets/gazon.jpg";
+import PreviousResults from "./Components/PreviousResults";
 
-function Page() {
+function Page2() {
   const [currentImage, setCurrentImage] = useState(logo);
   const [currentImage2, setCurrentImage2] = useState(logo);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showDropdown2, setShowDropdown2] = useState(false);
-  const [data, setData] = useState(null);
+  const [isDropdownLeftOpen, setIsDropdownLeftOpen] = useState(false);
+  const [isDropdownRightOpen, setIsDropdownRightOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedCountry2, setSelectedCountry2] = useState(null);
   const dropdownRef = useRef(null);
@@ -41,56 +42,64 @@ function Page() {
   const logoRef2 = useRef(null);
 
   useEffect(() => {
-    function handleClickOutside(event) {
+    function handleClickOutsideDropdown(event) {
+      if (
+        dropdownRef.current &&
+        event &&
+        !dropdownRef.current.contains(event.target) &&
+        !logoRef.current.contains(event.target)
+      ) {
+        setIsDropdownLeftOpen(false);
+        // Si aucune équipe n'a été sélectionnée, réaffectez l'image d'origine
+        if (!selectedCountry) {
+          setCurrentImage(logo);
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutsideDropdown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideDropdown);
+    };
+  }, [isDropdownLeftOpen, selectedCountry]);
+
+  useEffect(() => {
+    function handleClickOutsideDropdown2(event) {
       if (
         dropdownRef2.current &&
         event &&
         !dropdownRef2.current.contains(event.target) &&
         !logoRef2.current.contains(event.target)
       ) {
-        setShowDropdown2(false);
+        setIsDropdownRightOpen(false);
+        // Si aucune équipe n'a été sélectionnée, réaffectez l'image d'origine
+        if (!selectedCountry2) {
+          setCurrentImage2(logo);
+        }
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutsideDropdown2);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsideDropdown2);
     };
-  }, [showDropdown2]);
-  useEffect(() => {
-    function handleClickOutside(event) {
-      console.log(event);
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        !logoRef.current.contains(event.target)
-      ) {
-        setShowDropdown(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showDropdown]);
+  }, [isDropdownRightOpen, selectedCountry2]);
 
   const handleImageChange = (teamImage, countryCode) => {
-    setCurrentImage(teamImage);
-    setShowDropdown(false);
-    setData(null);
+    setCurrentImage(teamImage || logo);
     setSelectedCountry(countryCode);
+    setIsDropdownLeftOpen(false);
   };
+
   const handleImageChange2 = (teamImage, countryCode) => {
-    setCurrentImage2(teamImage);
-    setShowDropdown2(false);
-    setData(null);
+    setCurrentImage2(teamImage || logo);
     setSelectedCountry2(countryCode);
+    setIsDropdownRightOpen(false);
   };
+
   const handleStart = () => {
-    console.log(selectedCountry, selectedCountry2);
     if (selectedCountry && selectedCountry2) {
       fetch(
         `http://127.0.0.1:8000/?country_1=${selectedCountry}&country_2=${selectedCountry2}`
@@ -101,132 +110,77 @@ function Page() {
         });
     }
   };
-  // const handleStart = () => {
-  //   setShowBackButton(true);
-  //   const selectedTeam = teams.find((team) => team.image === currentImage);
 
-  //   if (selectedTeam) {
-  //     fetch(`http://localhost:8000/${selectedTeam.countryCode}`) // Remplacez l'URL par celle de votre API FastAPI
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         setData(data);
-
-  //         if (!data || !data.next_matches || data.next_matches.length === 0) {
-  //           setTeamDisqualified(true);
-  //         } else {
-  //           setTeamDisqualified(false);
-  //         }
-  //       })
-  //       .catch((error) =>
-  //         console.error("Erreur lors de la récupération des données:", error)
-  //       );
-  //   }
-  // };
-
-  // Gestionnaire pour fermer le menu déroulant lors du clic en dehors
-  const handleClickOutsideDropdown = (e) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setShowDropdown(false);
-    }
-  };
-  const handleClickOutsideDropdown2 = (e) => {
-    if (dropdownRef2.current && !dropdownRef2.current.contains(e.target)) {
-      setShowDropdown2(false);
-    }
-  };
-
-  // Les données des équipes provenant de votre API FastAPI
   const teams = [
-    { name: "France", image: team1Image, countryCode: "France" },
-    { name: "Portugal", image: team2Image, countryCode: "Portugal" },
-    { name: "Angleterre", image: team3Image, countryCode: "England" },
-    { name: "Argentine", image: team4Image, countryCode: "Argentina" },
-    { name: "Afrique du Sud", image: team5Image, countryCode: "South Africa" },
-    { name: "Australie", image: team6Image, countryCode: "Australia" },
-    { name: "Chili", image: team7Image, countryCode: "Chile" },
-    { name: "Écosse", image: team8Image, countryCode: "Scotland" },
-    { name: "Fidji", image: team9Image, countryCode: "Fiji" },
-    { name: "Géorgie", image: team10Image, countryCode: "Georgia" },
-    { name: "Irlande", image: team11Image, countryCode: "Ireland" },
-    { name: "Italie", image: team12Image, countryCode: "Italy" },
-    { name: "Japon", image: team13Image, countryCode: "Japan" },
-    { name: "Namibie", image: team14Image, countryCode: "Namibia" },
-    {
-      name: "Nouvelle-Zélande",
-      image: team15Image,
-      countryCode: "New Zealand",
-    },
-    { name: "Pays de Galles", image: team16Image, countryCode: "Wales" },
-    { name: "Roumanie", image: team17Image, countryCode: "Romania" },
-    { name: "Samoa", image: team18Image, countryCode: "Samoa" },
-    { name: "Tonga", image: team19Image, countryCode: "Tonga" },
-    { name: "Uruguay", image: team20Image, countryCode: "Uruguay" },
+    { name: 'France', image: team1Image, countryCode: 'France' },
+    { name: 'Portugal', image: team2Image, countryCode: 'Portugal' },
+    { name: 'Angleterre', image: team3Image, countryCode: 'England' },
+    { name: 'Argentine', image: team4Image, countryCode: 'Argentina' },
+    { name: 'Afrique du Sud', image: team5Image, countryCode: 'South Africa' },
+    { name: 'Australie', image: team6Image, countryCode: 'Australia' },
+    { name: 'Chili', image: team7Image, countryCode: 'Chile' },
+    { name: 'Écosse', image: team8Image, countryCode: 'Scotland' },
+    { name: 'Fidji', image: team9Image, countryCode: 'Fiji' },
+    { name: 'Géorgie', image: team10Image, countryCode: 'Georgia' },
+    { name: 'Irlande', image: team11Image, countryCode: 'Ireland' },
+    { name: 'Italie', image: team12Image, countryCode: 'Italy' },
+    { name: 'Japon', image: team13Image, countryCode: 'Japan' },
+    { name: 'Namibie', image: team14Image, countryCode: 'Namibia' },
+    { name: 'Nouvelle-Zélande', image: team15Image, countryCode: 'New Zealand' },
+    { name: 'Pays de Galles', image: team16Image, countryCode: 'Wales' },
+    { name: 'Roumanie', image: team17Image, countryCode: 'Romania' },
+    { name: 'Samoa', image: team18Image, countryCode: 'Samoa' },
+    { name: 'Tonga', image: team19Image, countryCode: 'Tonga' },
+    { name: 'Uruguay', image: team20Image, countryCode: 'Uruguay' },
   ];
 
   return (
     <div
-      className="bg-green-100 bg-cover bg-center min-h-screen "
+      className="bg-green-100 bg-cover bg-center min-h-screen"
       style={{ backgroundImage: `url(${rugbyFieldImage})` }}
     >
-      <div
-        className="flex  min-h-screen bg-gray-200 flex-row justify-center items-center"
-        onClick={(e) => {
-          handleClickOutsideDropdown();
-          handleClickOutsideDropdown2();
-        }}
-      >
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <div className="mb-4">
-            <img
-              ref={logoRef}
-              src={currentImage}
-              alt="Current Team"
-              className={`w-48 h-48 rounded-full cursor-pointer mx-auto`}
-              onClick={() => setShowDropdown(!showDropdown)}
-            />
-          </div>
-          {showDropdown && (
-            <ImageDropdown
+      <div className="flex min-h-screen bg-gray-200 flex-col justify-center items-center">
+        <div className="flex mb-4">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <div className="mb-4">
+              <img
+                ref={logoRef}
+                src={currentImage}
+                alt="Current Team"
+                className={`w-48 h-48 rounded-full cursor-pointer mx-auto`}
+                onClick={() => {
+                  setIsDropdownLeftOpen(!isDropdownLeftOpen);
+                  setIsDropdownRightOpen(false);
+                }}
+              />
+            </div>
+            <ImageDropdownLeft
               teams={teams}
               onImageChange={handleImageChange}
-              dropdownRef={dropdownRef}
-            />
-          )}
-          <div className="flex flex-col items-center">
-            {/* {selectedCountry !== null && !data && (
-              <button
-                className="mt-8 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full mx-auto block"
-                onClick={handleStart}
-              >
-                Start
-              </button>
-            )} */}
-          </div>
-        </div>
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <div className="mb-4">
-            <img
-              ref={logoRef2}
-              src={currentImage2}
-              alt="Current Team"
-              className={`w-48 h-48 rounded-full cursor-pointer mx-auto`}
-              onClick={() => setShowDropdown2(!showDropdown2)}
+              isOpen={isDropdownLeftOpen}
             />
           </div>
-          {showDropdown2 && (
-            <ImageDropdown
+          <div className="bg-white p-8 rounded-lg shadow-lg ml-4">
+            <div className="mb-4">
+              <img
+                ref={logoRef2}
+                src={currentImage2}
+                alt="Current Team"
+                className={`w-48 h-48 rounded-full cursor-pointer mx-auto`}
+                onClick={() => {
+                  setIsDropdownRightOpen(!isDropdownRightOpen);
+                  setIsDropdownLeftOpen(false);
+                }}
+              />
+            </div>
+            <ImageDropdownRight
               teams={teams}
               onImageChange={handleImageChange2}
-              dropdownRef={dropdownRef2}
+              isOpen={isDropdownRightOpen}
             />
-          )}
-          <div className="flex flex-col items-center"></div>
+          </div>
         </div>
-        <button
-          onClick={(e) => {
-            handleStart();
-          }}
-        >
+        <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full" onClick={handleStart}>
           Start
         </button>
       </div>
@@ -234,4 +188,4 @@ function Page() {
   );
 }
 
-export default Page;
+export default Page2;
