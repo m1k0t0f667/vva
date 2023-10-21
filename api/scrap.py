@@ -93,9 +93,9 @@ def fetch_world_cup_data():
         )
 
         if date_div:
-            var=date_div.text.strip()
-            f=var.replace(" - Play Offs", "")
-            current_date =f
+            var = date_div.text.strip()
+            f = var.replace(" - Play Offs", "")
+            current_date = f
 
         # Extracting match time
         match_time = event.find("p").text.strip()

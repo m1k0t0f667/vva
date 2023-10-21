@@ -19,7 +19,7 @@ import team12Image from "../Assets/italie.png";
 import team13Image from "../Assets/Japon.png";
 import team14Image from "../Assets/Namibie.png";
 import team15Image from "../Assets/Nouvelle-Zélande.png";
-import team16Image from "../Assets/Pays de Galles.png"; 
+import team16Image from "../Assets/Pays de Galles.png";
 import team17Image from "../Assets/Roumanie.png";
 import team18Image from "../Assets/Samoa.png";
 import team19Image from "../Assets/Tonga.jpg";
@@ -89,7 +89,18 @@ function Page() {
     setData(null);
     setSelectedCountry2(countryCode);
   };
-
+  const handleStart = () => {
+    console.log(selectedCountry, selectedCountry2);
+    if (selectedCountry && selectedCountry2) {
+      fetch(
+        `http://127.0.0.1:8000/?country_1=${selectedCountry}&country_2=${selectedCountry2}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        });
+    }
+  };
   // const handleStart = () => {
   //   setShowBackButton(true);
   //   const selectedTeam = teams.find((team) => team.image === currentImage);
@@ -211,6 +222,13 @@ function Page() {
           )}
           <div className="flex flex-col items-center"></div>
         </div>
+        <button
+          onClick={(e) => {
+            handleStart();
+          }}
+        >
+          Start
+        </button>
       </div>
     </div>
   );
