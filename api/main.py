@@ -140,8 +140,8 @@ def get_prediction(country_1: str = None, country_2: str = None):
         return {
             "result_by_points": val,
             "result_by_victory10": h[1],
-            "result_by_ranking" "result_by_victory": h[0],
-            "10_last_matches": r[0:10],
+            "result_by_victory": h[0],
+            "result10": r[0:10],
             "result_by_ranking": [give_ranking(country_1), give_ranking(country_2)],
         }
 

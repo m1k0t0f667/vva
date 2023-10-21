@@ -27,7 +27,8 @@ import team18Image from "../Assets/Samoa.png";
 import team19Image from "../Assets/Tonga.jpg";
 import team20Image from "../Assets/Uruguay.png";
 import ImageDropdown from "./Components/ImageDropdown";
-import PreviousResults from "./Components/PreviousResults";
+import Card from "./Components/card";
+import PreviousResultsNeutral from "./Components/PreviousResultsNeutral";
 
 function Page2() {
   const [currentImage, setCurrentImage] = useState(logo);
@@ -40,6 +41,8 @@ function Page2() {
   const dropdownRef2 = useRef(null);
   const logoRef = useRef(null);
   const logoRef2 = useRef(null);
+  const [data, setData] = useState(null);
+  const [sameTeam, setSameTeam] = useState(false);
 
   useEffect(() => {
     function handleClickOutsideDropdown(event) {
@@ -101,38 +104,48 @@ function Page2() {
 
   const handleStart = () => {
     if (selectedCountry && selectedCountry2) {
+      if (selectedCountry === selectedCountry2) {
+        setSameTeam(true);
+      } else {
+        setSameTeam(false);
+      }
       // Vous pouvez maintenant activer votre logique pour le bouton "Start" ici
       fetch(
         `http://127.0.0.1:8000/?country_1=${selectedCountry}&country_2=${selectedCountry2}`
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
+          setData(data);
         });
     }
+    console.log(data);
   };
 
   const teams = [
-    { name: 'France', image: team1Image, countryCode: 'France' },
-    { name: 'Portugal', image: team2Image, countryCode: 'Portugal' },
-    { name: 'Angleterre', image: team3Image, countryCode: 'England' },
-    { name: 'Argentine', image: team4Image, countryCode: 'Argentina' },
-    { name: 'Afrique du Sud', image: team5Image, countryCode: 'South Africa' },
-    { name: 'Australie', image: team6Image, countryCode: 'Australia' },
-    { name: 'Chili', image: team7Image, countryCode: 'Chile' },
-    { name: 'Écosse', image: team8Image, countryCode: 'Scotland' },
-    { name: 'Fidji', image: team9Image, countryCode: 'Fiji' },
-    { name: 'Géorgie', image: team10Image, countryCode: 'Georgia' },
-    { name: 'Irlande', image: team11Image, countryCode: 'Ireland' },
-    { name: 'Italie', image: team12Image, countryCode: 'Italy' },
-    { name: 'Japon', image: team13Image, countryCode: 'Japan' },
-    { name: 'Namibie', image: team14Image, countryCode: 'Namibia' },
-    { name: 'Nouvelle-Zélande', image: team15Image, countryCode: 'New Zealand' },
-    { name: 'Pays de Galles', image: team16Image, countryCode: 'Wales' },
-    { name: 'Roumanie', image: team17Image, countryCode: 'Romania' },
-    { name: 'Samoa', image: team18Image, countryCode: 'Samoa' },
-    { name: 'Tonga', image: team19Image, countryCode: 'Tonga' },
-    { name: 'Uruguay', image: team20Image, countryCode: 'Uruguay' },
+    { name: "France", image: team1Image, countryCode: "France" },
+    { name: "Portugal", image: team2Image, countryCode: "Portugal" },
+    { name: "Angleterre", image: team3Image, countryCode: "England" },
+    { name: "Argentine", image: team4Image, countryCode: "Argentina" },
+    { name: "Afrique du Sud", image: team5Image, countryCode: "South Africa" },
+    { name: "Australie", image: team6Image, countryCode: "Australia" },
+    { name: "Chili", image: team7Image, countryCode: "Chile" },
+    { name: "Écosse", image: team8Image, countryCode: "Scotland" },
+    { name: "Fidji", image: team9Image, countryCode: "Fiji" },
+    { name: "Géorgie", image: team10Image, countryCode: "Georgia" },
+    { name: "Irlande", image: team11Image, countryCode: "Ireland" },
+    { name: "Italie", image: team12Image, countryCode: "Italy" },
+    { name: "Japon", image: team13Image, countryCode: "Japan" },
+    { name: "Namibie", image: team14Image, countryCode: "Namibia" },
+    {
+      name: "Nouvelle-Zélande",
+      image: team15Image,
+      countryCode: "New Zealand",
+    },
+    { name: "Pays de Galles", image: team16Image, countryCode: "Wales" },
+    { name: "Roumanie", image: team17Image, countryCode: "Romania" },
+    { name: "Samoa", image: team18Image, countryCode: "Samoa" },
+    { name: "Tonga", image: team19Image, countryCode: "Tonga" },
+    { name: "Uruguay", image: team20Image, countryCode: "Uruguay" },
   ];
 
   return (
@@ -160,6 +173,7 @@ function Page2() {
               onImageChange={handleImageChange}
               isOpen={isDropdownLeftOpen}
             />
+            {data && <Card dataPrediction={data.result_by_ranking[0]} />}
           </div>
           <div className="bg-white p-8 rounded-lg shadow-lg ml-4">
             <div className="mb-4">
@@ -179,14 +193,48 @@ function Page2() {
               onImageChange={handleImageChange2}
               isOpen={isDropdownRightOpen}
             />
+            {data && <Card dataPrediction={data.result_by_ranking[1]} />}
           </div>
         </div>
         {selectedCountry && selectedCountry2 && (
-          <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full" onClick={handleStart}>
-            Start
-          </button>
+          <div>
+            <button
+              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full"
+              onClick={handleStart}
+            >
+              Start
+            </button>
+          </div>
+        )}
+        {!sameTeam ? (
+          <div>
+            {data && (
+              <div className="mt-4 text-lg">
+                Le vainqueur potentiel du match {selectedCountry} VS{" "}
+                {selectedCountry2}
+                <div>
+                  Par points : {data.result_by_points[0]}-
+                  {data.result_by_points[1]}
+                </div>
+                <div>Par 10 derniers matchs : {data.result_by_victory10}</div>
+                <div>Par victoires : {data.result_by_victory}</div>
+              </div>
+            )}
+            {data &&
+              (data.result10.length !== 0 ? (
+                <PreviousResultsNeutral
+                  data={data}
+                  selectedCountry={selectedCountry}
+                />
+              ) : (
+                <div>No data</div>
+              ))}
+          </div>
+        ) : (
+          <div>Choisissez deux team différentes</div>
         )}
       </div>
+
       {/* Footer */}
       <div
         className="bg-cover bg-center bg-no-repeat py-24"
