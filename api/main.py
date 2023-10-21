@@ -28,6 +28,7 @@ def load_data(file_name: str) -> list:
 
 matches = load_data("./oddRugby.csv") + load_data("./transformed_rugby.csv")
 next_matches = load_data("./transformed_new_rugby.csv")
+ranking = load_data("./ranking.csv")
 
 
 def moyenne(l):
@@ -37,6 +38,12 @@ def moyenne(l):
         r += int(i[0])
         r1 += int(i[1])
     return round(r / len(l)), round(r1 / len(l))
+
+
+def give_ranking(team):
+    for t in ranking:
+        if t["country"] == team:
+            return t
 
 
 # Utility Functions
@@ -65,6 +72,13 @@ def get_winner_by_points(match: dict) -> str:
     return match["team1"] if match["score1"] > match["score2"] else match["team2"]
 
 
+def compare_ranking(pays1, pays2):
+    if give_ranking(pays1)["position"] > give_ranking(pays2)["position"]:
+        return pays1
+    else:
+        return pays2
+
+
 def get_winner_old(current_match: dict) -> tuple:
     relevant_matches = [
         match
@@ -72,6 +86,10 @@ def get_winner_old(current_match: dict) -> tuple:
         if current_match["team1"] in match.values()
         and current_match["team2"] in match.values()
     ]
+    if len(relevant_matches) == 0:
+        print("del ame")
+        return ["No data", "No data"]
+
     winners = [get_winner_by_points(match) for match in relevant_matches]
     most_common = most_frequent(winners)
     most_common_10 = most_frequent(winners[:10]) if len(winners) >= 10 else most_common
@@ -95,7 +113,11 @@ def get_all_matches(pays: str) -> dict:
             )
             upcoming_matches.append(match)
 
-    return {"result10": relevant_matches[:10], "next_matches": upcoming_matches}
+    return {
+        "ranking": give_ranking(pays),
+        "result10": relevant_matches[:10],
+        "next_matches": upcoming_matches,
+    }
 
 
 @app.get("/")
@@ -111,11 +133,16 @@ def get_prediction(country_1: str = None, country_2: str = None):
                 else:
                     prediction_points.append([i["score2"], i["score1"]])
         h = get_winner_old({"team1": country_1, "team2": country_2})
+        if len(prediction_points) == 0:
+            val = "No data"
+        else:
+            val = moyenne(prediction_points)
         return {
-            "result_by_points": moyenne(prediction_points),
+            "result_by_points": val,
             "result_by_victory10": h[1],
-            "result_by_victory": h[0],
+            "result_by_ranking" "result_by_victory": h[0],
             "10_last_matches": r[0:10],
+            "result_by_ranking": [give_ranking(country_1), give_ranking(country_2)],
         }
 
     elif country_1:
