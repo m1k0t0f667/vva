@@ -101,6 +101,7 @@ function Page2() {
 
   const handleStart = () => {
     if (selectedCountry && selectedCountry2) {
+      // Vous pouvez maintenant activer votre logique pour le bouton "Start" ici
       fetch(
         `http://127.0.0.1:8000/?country_1=${selectedCountry}&country_2=${selectedCountry2}`
       )
@@ -180,10 +181,17 @@ function Page2() {
             />
           </div>
         </div>
-        <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full" onClick={handleStart}>
-          Start
-        </button>
+        {selectedCountry && selectedCountry2 && (
+          <button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-8 rounded-full" onClick={handleStart}>
+            Start
+          </button>
+        )}
       </div>
+      {/* Footer */}
+      <div
+        className="bg-cover bg-center bg-no-repeat py-24"
+        style={{ backgroundImage: `url(${rugbyFieldImage})` }}
+      ></div>
     </div>
   );
 }
