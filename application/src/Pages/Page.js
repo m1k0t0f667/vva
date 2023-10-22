@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../Assets/oracle.png";
-import "./Page.css";
+import './Page.css';
+
 
 // Importez vos images d'équipe ici
 import team1Image from "../Assets/france.jpg";

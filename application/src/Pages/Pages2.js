@@ -154,7 +154,7 @@ function Page2() {
       style={{ backgroundImage: `url(${rugbyFieldImage})` }}
     >
       <div className="flex min-h-screen bg-gray-200 flex-col justify-center items-center">
-        <div className="flex mb-4">
+        <div className="flex mb-4 mt-8">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <div className="mb-4">
               <img
@@ -231,7 +231,7 @@ function Page2() {
               ))}
           </div>
         ) : (
-          <div>Choisissez deux team différentes</div>
+          <div>Choisissez deux équipes différentes</div>
         )}
       </div>
 
