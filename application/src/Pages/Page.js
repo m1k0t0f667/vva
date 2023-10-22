@@ -42,17 +42,17 @@ function Page() {
   const [teamDisqualified, setTeamDisqualified] = useState(false);
 
   const handleHomeClick = () => {
-    setCurrentImage(initialImage); // Rétablit l'image initiale lorsque vous cliquez sur la page d'accueil
+    setCurrentImage(initialImage); // Rétablit l'image initiale lorsque clique sur la page d'accueil
     window.location.reload();
   };
 
   const handleBackClick = () => {
-    setCurrentImage(initialImage); // Rétablit l'image initiale lorsque vous cliquez sur le bouton de retour
+    setCurrentImage(initialImage); // Rétablit l'image initiale quand clique sur le bouton de retour
     window.location.reload();
   };
 
   useEffect(() => {
-    setInitialImage(currentImage); // Met à jour l'image initiale lorsque le composant est monté
+    setInitialImage(currentImage); // Met à jour l'image initiale
   }, []);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ function Page() {
     // Fermez le menu déroulant après un court délai
     setTimeout(() => {
       setShowDropdown(false);
-    }, 100); // Vous pouvez ajuster le délai (en millisecondes) selon vos préférences
+    }, 100); // Réglzge du temps 
 
     setData(null);
     setSelectedCountry(countryCode);

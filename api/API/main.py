@@ -1,96 +1,177 @@
+# Importez les modules nécessaires
 from fastapi import FastAPI
-import requests
-from bs4 import BeautifulSoup
-import pandas as pd
-import os
+from fastapi.middleware.cors import CORSMiddleware
+import csv
+from collections import Counter
+from starlette.responses import RedirectResponse
 
+# Créez une instance FastAPI
 app = FastAPI()
 
-chapeaux = {
-    "Chapeau 1": ["Afrique du Sud", "Nouvelle-Zélande", "Angleterre", "Pays de Galles"],
-    "Chapeau 2": ["Irlande", "Australie", "France", "Japon"],
-    "Chapeau 3": ["Écosse", "Argentine", "Fidji", "Italie"],
-    "Chapeau 4": ["Samoa", "Géorgie", "Uruguay", "Tonga"],
-    "Chapeau 5": ["Roumanie", "Namibie", "Chili", "Portugal"]
-}
+# Middleware CORS pour autoriser les requêtes depuis n'importe quelle origine
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-pays = [equipe for sublist in chapeaux.values() for equipe in sublist]
+# Fonction pour charger les données à partir des fichiers CSV
+def load_data(file_name: str) -> list:
+    data = []
+    with open(file_name, "r") as file:
+        csvreader = csv.DictReader(file)
+        for row in csvreader:
+            data.append(row)
+    return data
 
-def fetch_and_parse(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return BeautifulSoup(response.text, 'html.parser')
-    except requests.RequestException:
+# Chargement des données depuis les fichiers CSV
+matches = load_data("./oddRugby.csv") + load_data("./transformed_rugby.csv")
+next_matches = load_data("./transformed_new_rugby.csv")
+ranking = load_data("./ranking.csv")
+
+# Fonction pour calculer la moyenne
+def moyenne(l):
+    r = 0
+    r1 = 0
+    for i in l:
+        r += int(i[0])
+        r1 += int(i[1])
+    return round(r / len(l)), round(r1 / len(l))
+
+# Fonction pour obtenir le classement d'une équipe
+def give_ranking(team):
+    for t in ranking:
+        if t["country"] == team:
+            return t
+
+# Fonction utilitaire pour trouver l'élément le plus fréquent dans une liste
+def most_frequent(data_list: list) -> str:
+    occurence_count = Counter(data_list)
+    return occurence_count.most_common(1)[0][0]
+
+# Fonction pour obtenir le vainqueur en fonction des cotes
+def get_winner_by_odd(match: dict) -> str:
+    if not match["odd_team1"]:
         return None
+    if match["odd_team1"] > match["oddDraw"] and match["odd_team2"] > match["oddDraw"]:
+        return "Draw"
+    return match["team1"] if match["odd_team1"] <= match["odd_team2"] else match["team2"]
 
-def extract_data(soup):
-    equipes1 = [div.text.strip() for div in soup.select(".scoreboard_contestant-1 div")]
-    equipes2 = [div.text.strip() for div in soup.select(".scoreboard_contestant-2 div")]
-    hours = [div.text.strip() for div in soup.select("div.scoreboard_hour")]
-    dates = [div.text.strip() for div in soup.select("div.event_infoTime.ng-star-inserted")]
-    all_cotes = [cote.text.strip() for cote in soup.select("span.oddValue")]
+# Fonction pour obtenir le vainqueur en fonction des points
+def get_winner_by_points(match: dict) -> str:
+    if not match["score1"]:
+        return None
+    if match["score1"] == match["score2"]:
+        return "Draw"
+    return match["team1"] if match["score1"] > match["score2"] else match["team2"]
 
-    equipes_cotes = []
+# Fonction pour comparer le classement de deux équipes
+def compare_ranking(pays1, pays2):
+    if give_ranking(pays1)["position"] > give_ranking(pays2)["position"]:
+        return pays1
+    else:
+        return pays2
 
-    for i in range(len(equipes1)):
-        equipe1, cote1 = equipes1[i], all_cotes[i*3]
-        cote_null, cote2 = all_cotes[i*3 + 1], all_cotes[i*3 + 2]
-        equipe2 = equipes2[i]
+# Fonction pour obtenir le vainqueur en fonction des anciens matchs
+def get_winner_old(current_match: dict) -> tuple:
+    relevant_matches = [
+        match
+        for match in matches
+        if current_match["team1"] in match.values()
+        and current_match["team2"] in match.values()
+    ]
+    if len(relevant_matches) == 0:
+        print("Aucune donnée")
+        return ["Aucune donnée", "Aucune donnée"]
+    winners = [get_winner_by_points(match) for match in relevant_matches]
+    most_common = most_frequent(winners)
+    most_common_10 = most_frequent(winners[:10]) if len(winners) >= 10 else most_common
 
-        if equipe1 not in pays or equipe2 not in pays:
-            continue
+    return most_common, most_common_10
 
-        heure = hours[i]
-        date = dates[i]
+# Liste des équipes avec leurs couleurs
+teams = [
+    { "name": "France", "image": team1Image, "countryCode": "France", "color": "#123456" },
+    { "name": "Portugal", "image": team2Image, "countryCode": "Portugal", "color": "#654321" },
+    { "name": "Angleterre", "image": team3Image, "countryCode": "England", "color": "#789abc" },
+    { "name": "Argentine", "image": team4Image, "countryCode": "Argentina", "color": "#def123" },
+    { "name": "Afrique du Sud", "image": team5Image, "countryCode": "South Africa", "color": "#456789" },
+    { "name": "Australie", "image": team6Image, "countryCode": "Australia", "color": "#ab789c" },
+    { "name": "Chili", "image": team7Image, "countryCode": "Chile", "color": "#567def" },
+    { "name": "Écosse", "image": team8Image, "countryCode": "Scotland", "color": "#acdbef" },
+    { "name": "Fidji", "image": team9Image, "countryCode": "Fiji", "color": "#dea456" },
+    { "name": "Géorgie", "image": team10Image, "countryCode": "Georgia", "color": "#123def" },
+    { "name": "Irlande", "image": team11Image, "countryCode": "Ireland", "color": "#789dea" },
+    { "name": "Italie", "image": team12Image, "countryCode": "Italy", "color": "#456def" },
+    { "name": "Japon", "image": team13Image, "countryCode": "Japan", "color": "#ab789d" },
+    { "name": "Namibie", "image": team14Image, "countryCode": "Namibia", "color": "#de456f" },
+    { "name": "Nouvelle-Zélande", "image": team15Image, "countryCode": "New Zealand", "color": "#456dea" },
+    { "name": "Pays de Galles", "image": team16Image, "countryCode": "Wales", "color": "#ab45de" },
+    { "name": "Roumanie", "image": team17Image, "countryCode": "Romania", "color": "#def789" },
+    { "name": "Samoa", "image": team18Image, "countryCode": "Samoa", "color": "#def123" },
+    { "name": "Tonga", "image": team19Image, "countryCode": "Tonga", "color": "#acde45" },
+    { "name": "Uruguay", "image": team20Image, "countryCode": "Uruguay", "color": "#45acde" },
+]
 
-        equipes_cotes.append([equipe1, cote1, cote_null, cote2, equipe2, heure, date, ""])
 
-    return equipes_cotes
+# Définition des endpoints de l'API
+@app.get("/{pays}")
+def get_all_matches(pays: str) -> dict:
+    relevant_matches = [match for match in matches if pays in match.values()]
+    upcoming_matches = []
 
-def update_csv(data):
-    directory = "BetclicTest"
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    for match in next_matches:
+        if pays in match.values():
+            match["winner_by_odd"] = get_winner_by_odd(match)
+            overall, recent = get_winner_old(match)
+            match["winner_by_all_matches"] = overall
+            match["winner_by_10_l_matches"] = (
+                recent if len(relevant_matches) >= 10 else "Idem"
+            )
+            upcoming_matches.append(match)
 
-    path = os.path.join(directory, "cotes_equipes.csv")
-
-    try:
-        old_data_df = pd.read_csv(path, delimiter='|')
-    except FileNotFoundError:
-        old_data_df = pd.DataFrame(columns=['Equipe 1', 'Cote 1', 'Match Nul', 'Cote 2', 'Equipe 2', 'Heure', 'Date', 'Annotation'])
-
-    for row in data:
-        equipe1, cote1, match_nul, cote2, equipe2, heure, date, annotation = row
-
-        existing_entry = old_data_df[(old_data_df["Equipe 1"] == equipe1) & 
-                                     (old_data_df["Equipe 2"] == equipe2) &
-                                     (old_data_df["Date"] == date)]
-                                     
-        if not existing_entry.empty:
-            if (existing_entry["Heure"].iloc[0] == heure) and (existing_entry["Cote 2"].iloc[0] != cote2):
-                old_cote = existing_entry["Cote 2"].iloc[0]
-                annotation = f"L'ancienne cote était de : {old_cote} pour {equipe2}."
-                old_data_df.loc[existing_entry.index, "Annotation"] = annotation
-                old_data_df.loc[existing_entry.index, "Cote 2"] = cote2
-                old_data_df.loc[existing_entry.index, "Date"] = date
-        else:
-            old_data_df = pd.concat([old_data_df, pd.DataFrame([row], columns=old_data_df.columns)], ignore_index=True)
-
-    old_data_df.to_csv(path, sep='|', index=False)
+    return {
+        "ranking": give_ranking(pays),
+        "result10": relevant_matches[:10],
+        "next_matches": upcoming_matches,
+    }
 
 @app.get("/")
-def read_root():
-    return {"message": "Bienvenue sur l'API !"}
+def get_prediction(country_1: str = None, country_2: str = None):
+    prediction_points = []
+    r = []
+    if country_1 and country_2:
+        for i in matches:
+            if country_1 in i.values() and country_2 in i.values():
+                r.append(i)
+                if country_1 == i["team1"]:
+                    prediction_points.append([i["score1"], i["score2"]])
+                else:
+                    prediction_points.append([i["score2"], i["score1"]])
+        h = get_winner_old({"team1": country_1, "team2": country_2})
+        if len(prediction_points) == 0:
+            val = "No data"
+        else:
+            val = moyenne(prediction_points)
+        return {
+            "result_by_points": val,
+            "result_by_victory10": h[1],
+            "result_by_victory": h[0],
+            "result10": r[0:10],
+            "result_by_ranking": [give_ranking(country_1), give_ranking(country_2)],
+        }
 
-@app.get("/update-data/")
-def update_data():
-    url = "https://www.betclic.fr/coupe-du-monde-2023-s5/coupe-du-monde-2023-c34"
-    soup = fetch_and_parse(url)
-
-    if soup:
-        data = extract_data(soup)
-        update_csv(data)
-        return {"status": "success", "message": "Les données ont été mises à jour dans BetclicTest/cotes_equipes.csv."}
+    elif country_1:
+        redirect_url = f"/{country_1}"
+        return RedirectResponse(redirect_url)
+    elif country_2:
+        redirect_url = f"/{country_2}"
+        return RedirectResponse(redirect_url)
     else:
-        return {"status": "error", "message": "Erreur lors de la mise à jour des données."}
+        return "Please select a country or two country : http://127.0.0.1:8000/?country_1=&country_2="
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="localhost", port=8080)

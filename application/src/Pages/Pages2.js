@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../Assets/oracle.png";
-import "./Page.css"; // Assurez-vous que ce fichier CSS est accessible ici
+import "./Page.css"; 
 import rugbyFieldImage from "../Assets/gazon.jpg";
 import ImageDropdownLeft from "./Components/ImageDropdownLeft";
 import ImageDropdownRight from "./Components/ImageDropdownRight";
@@ -43,6 +43,7 @@ function Page2() {
   const logoRef2 = useRef(null);
   const [data, setData] = useState(null);
   const [sameTeam, setSameTeam] = useState(false);
+  const [teamColor, setTeamColor] = useState("");
 
   useEffect(() => {
     function handleClickOutsideDropdown(event) {
@@ -53,7 +54,6 @@ function Page2() {
         !logoRef.current.contains(event.target)
       ) {
         setIsDropdownLeftOpen(false);
-        // Si aucune équipe n'a été sélectionnée, réaffectez l'image d'origine
         if (!selectedCountry) {
           setCurrentImage(logo);
         }
@@ -76,7 +76,6 @@ function Page2() {
         !logoRef2.current.contains(event.target)
       ) {
         setIsDropdownRightOpen(false);
-        // Si aucune équipe n'a été sélectionnée, réaffectez l'image d'origine
         if (!selectedCountry2) {
           setCurrentImage2(logo);
         }
@@ -90,63 +89,80 @@ function Page2() {
     };
   }, [isDropdownRightOpen, selectedCountry2]);
 
-  const handleImageChange = (teamImage, countryCode) => {
+  const handleImageChange = (teamImage, countryCode, color) => {
     setCurrentImage(teamImage || logo);
     setSelectedCountry(countryCode);
     setIsDropdownLeftOpen(false);
+    setTeamColor(color);
   };
 
-  const handleImageChange2 = (teamImage, countryCode) => {
+  const handleImageChange2 = (teamImage, countryCode, color) => {
     setCurrentImage2(teamImage || logo);
     setSelectedCountry2(countryCode);
     setIsDropdownRightOpen(false);
+    setTeamColor(color);
   };
 
   const handleStart = () => {
     if (selectedCountry && selectedCountry2) {
-      if (selectedCountry === selectedCountry2) {
-        setSameTeam(true);
-      } else {
-        setSameTeam(false);
-      }
-      // Vous pouvez maintenant activer votre logique pour le bouton "Start" ici
-      fetch(
-        `http://127.0.0.1:8000/?country_1=${selectedCountry}&country_2=${selectedCountry2}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          setData(data);
-        });
+        if (selectedCountry === selectedCountry2) {
+            setSameTeam(true);
+        } else {
+            setSameTeam(false);
+        }
+        fetch(
+            `http://127.0.0.1:8000/?country_1=${selectedCountry}&country_2=${selectedCountry2}`
+        )
+            .then((response) => response.json())
+            .then((data) => {
+                setData(data);
+
+                // Obtenir la couleur de l'équipe gagnante
+                let winningTeamColor = "#000000"; // Couleur par défaut au cas ou
+                if (data.result_by_victory === selectedCountry) {
+                    // L'équipe sélectionnée a gagné
+                    teams.forEach((team) => {
+                        if (team.countryCode === selectedCountry) {
+                            winningTeamColor = team.color;
+                        }
+                    });
+                } else if (data.result_by_victory === selectedCountry2) {
+                    // L'autre équipe a gagné
+                    teams.forEach((team) => {
+                        if (team.countryCode === selectedCountry2) {
+                            winningTeamColor = team.color;
+                        }
+                    });
+                }
+                setTeamColor(winningTeamColor);
+            });
     }
-    console.log(data);
-  };
+};
+
 
   const teams = [
-    { name: "France", image: team1Image, countryCode: "France" },
-    { name: "Portugal", image: team2Image, countryCode: "Portugal" },
-    { name: "Angleterre", image: team3Image, countryCode: "England" },
-    { name: "Argentine", image: team4Image, countryCode: "Argentina" },
-    { name: "Afrique du Sud", image: team5Image, countryCode: "South Africa" },
-    { name: "Australie", image: team6Image, countryCode: "Australia" },
-    { name: "Chili", image: team7Image, countryCode: "Chile" },
-    { name: "Écosse", image: team8Image, countryCode: "Scotland" },
-    { name: "Fidji", image: team9Image, countryCode: "Fiji" },
-    { name: "Géorgie", image: team10Image, countryCode: "Georgia" },
-    { name: "Irlande", image: team11Image, countryCode: "Ireland" },
-    { name: "Italie", image: team12Image, countryCode: "Italy" },
-    { name: "Japon", image: team13Image, countryCode: "Japan" },
-    { name: "Namibie", image: team14Image, countryCode: "Namibia" },
-    {
-      name: "Nouvelle-Zélande",
-      image: team15Image,
-      countryCode: "New Zealand",
-    },
-    { name: "Pays de Galles", image: team16Image, countryCode: "Wales" },
-    { name: "Roumanie", image: team17Image, countryCode: "Romania" },
-    { name: "Samoa", image: team18Image, countryCode: "Samoa" },
-    { name: "Tonga", image: team19Image, countryCode: "Tonga" },
-    { name: "Uruguay", image: team20Image, countryCode: "Uruguay" },
+    { name: "France", image: team1Image, countryCode: "France", color: "#123456" },
+    { name: "Portugal", image: team2Image, countryCode: "Portugal", color: "#654321" },
+    { name: "Angleterre", image: team3Image, countryCode: "England", color: "#789abc" },
+    { name: "Argentine", image: team4Image, countryCode: "Argentina", color: "#def123" },
+    { name: "Afrique du Sud", image: team5Image, countryCode: "South Africa", color: "#456789" },
+    { name: "Australie", image: team6Image, countryCode: "Australia", color: "#ab789c" },
+    { name: "Chili", image: team7Image, countryCode: "Chile", color: "#567def" },
+    { name: "Écosse", image: team8Image, countryCode: "Scotland", color: "#acdbef" },
+    { name: "Fidji", image: team9Image, countryCode: "Fiji", color: "#dea456" },
+    { name: "Géorgie", image: team10Image, countryCode: "Georgia", color: "#123def" },
+    { name: "Irlande", image: team11Image, countryCode: "Ireland", color: "#789dea" },
+    { name: "Italie", image: team12Image, countryCode: "Italy", color: "#456def" },
+    { name: "Japon", image: team13Image, countryCode: "Japan", color: "#ab789d" },
+    { name: "Namibie", image: team14Image, countryCode: "Namibia", color: "#de456f" },
+    { name: "Nouvelle-Zélande", image: team15Image, countryCode: "New Zealand", color: "#456dea" },
+    { name: "Pays de Galles", image: team16Image, countryCode: "Wales", color: "#ab45de" },
+    { name: "Roumanie", image: team17Image, countryCode: "Romania", color: "#def789" },
+    { name: "Samoa", image: team18Image, countryCode: "Samoa", color: "#def123" },
+    { name: "Tonga", image: team19Image, countryCode: "Tonga", color: "#acde45" },
+    { name: "Uruguay", image: team20Image, countryCode: "Uruguay", color: "#45acde" },
   ];
+  
 
   return (
     <div
@@ -166,6 +182,7 @@ function Page2() {
                   setIsDropdownLeftOpen(!isDropdownLeftOpen);
                   setIsDropdownRightOpen(false);
                 }}
+                style={{ backgroundColor: teamColor }}
               />
             </div>
             <ImageDropdownLeft
@@ -186,6 +203,7 @@ function Page2() {
                   setIsDropdownRightOpen(!isDropdownRightOpen);
                   setIsDropdownLeftOpen(false);
                 }}
+                style={{ backgroundColor: teamColor }}
               />
             </div>
             <ImageDropdownRight
@@ -220,15 +238,17 @@ function Page2() {
                 <div>Par victoires : {data.result_by_victory}</div>
               </div>
             )}
-            {data &&
-              (data.result10.length !== 0 ? (
+            {data && teams && ( // Assurez-vous que 'teams' est défini sinon erreur ..
+              data.result10.length !== 0 ? (
                 <PreviousResultsNeutral
                   data={data}
+                  teams={teams} // Transmettez la liste des équipes ici
                   selectedCountry={selectedCountry}
                 />
               ) : (
                 <div>No data</div>
-              ))}
+              )
+            )}
           </div>
         ) : (
           <div>Choisissez deux équipes différentes</div>
