@@ -6,7 +6,7 @@ import Page2 from "./Pages/Pages2";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/simu1" element={<Page />} />
+      <Route path="/" element={<Page />} />
       <Route path="/simu2" element={<Page2 />} />
     </Routes>
   );

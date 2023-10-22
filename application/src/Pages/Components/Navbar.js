@@ -7,7 +7,7 @@ function Navbar(props) {
       <div className="container mx-auto">
         <ul className="flex justify-around">
           <li className="hover:text-green-300">
-            <Link to={"/simu1"}>
+            <Link to={"/"}>
               <p>Statistiques</p>
             </Link>
           </li>
