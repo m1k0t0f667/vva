@@ -8,12 +8,12 @@ function Navbar(props) {
         <ul className="flex justify-around">
           <li className="hover:text-green-300">
             <Link to={"/simu1"}>
-              <p>Accueil</p>
+              <p>Statistiques</p>
             </Link>
           </li>
           <li className="hover:text-green-300">
             <Link to={"/simu2"}>
-              <p>Prévision</p>
+              <p>Prévisions</p>
             </Link>
           </li>
         </ul>

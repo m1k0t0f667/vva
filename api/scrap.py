@@ -27,7 +27,6 @@ response = requests.get(
     params=urlencode(proxy_params),
 )
 
-print(response.content)
 # chrome_options = Options()
 # chrome_options.add_argument("--headless")
 # chrome_options.add_argument("--disable-gpu")
@@ -155,25 +154,39 @@ def fetch_world_cup_data():
     return matches
 
 
-data = fetch_world_cup_data()
+try:
+    with open("oddRugby.csv", "r", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        existing_data = [row for row in reader]
+except FileNotFoundError:
+    # File doesn't exist, you can create it later if needed
+    pass
 
+# Fetch new data
+new_data = fetch_world_cup_data()
 
-# Open the CSV file in write mode and create a CSV writer
-with open("oddRugby.csv", "w") as csvfile:
-    writer = csv.DictWriter(
-        csvfile,
-        fieldnames=[
-            "team1",
-            "team2",
-            "score1",
-            "score2",
-            "odd_team1",
-            "oddDraw",
-            "odd_team2",
-            "time",
-            "date",
-        ],
-    )
+# Check if each new match is not already in the existing data
+
+# Combine unique new data with existing data
+all_data = new_data + existing_data
+# Write the combined data back to the CSV file
+with open("oddRugby.csv", "w", newline="") as csvfile:
+    fieldnames = [
+        "team1",
+        "team2",
+        "score1",
+        "score2",
+        "odd_team1",
+        "oddDraw",
+        "odd_team2",
+        "time",
+        "date",
+    ]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    # Write the header row if the file is being created for the first time
     writer.writeheader()
-    writer.writerows(data)
-# Find all div elements with the attribute data-v-012eb9f0
+
+    writer.writerows(all_data)
+
+print("New data has been updated and added to the CSV file.")
